@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  TATA_USAHA
+  DOSEN
+  MAHASISWA
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  username    String   @unique @db.VarChar(50)
+  password    String   @db.VarChar(255)
+  namaLengkap String   @map("nama_lengkap") @db.VarChar(150)
+  role        UserRole
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("tb_user")
+}
+
+model Dosen {
+  id         Int      @id @default(autoincrement())
+  nidn       String   @unique @db.VarChar(30)
+  namaDosen  String   @map("nama_dosen") @db.VarChar(150)
+  email      String   @unique @db.VarChar(150)
+  noHp       String?  @map("no_hp") @db.VarChar(20)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  mahasiswaBimbingan Mahasiswa[] @relation("DosenPA")
+
+  @@map("tb_dosen")
+}
+
+model Mahasiswa {
+  id             Int      @id @default(autoincrement())
+  nim            String   @unique @db.VarChar(20)
+  namaMahasiswa  String   @map("nama_mahasiswa") @db.VarChar(150)
+  prodi          String   @db.VarChar(100)
+  angkatan       Int
+  dosenPaId      Int      @map("dosen_pa_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  dosenPa Dosen @relation("DosenPA", fields: [dosenPaId], references: [id])
+
+  @@index([dosenPaId])
+  @@map("tb_mahasiswa")
+}

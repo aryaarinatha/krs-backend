@@ -1,0 +1,16 @@
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { Role } from '../enums/role.enum';
+
+export interface AuthenticatedUser {
+  id: number;
+  username: string;
+  role: Role;
+  namaLengkap: string;
+}
+
+export const CurrentUser = createParamDecorator(
+  (_data: unknown, ctx: ExecutionContext): AuthenticatedUser => {
+    const request = ctx.switchToHttp().getRequest();
+    return request.user as AuthenticatedUser;
+  },
+);
