@@ -5,13 +5,14 @@
   "private": true,
   "scripts": {
     "build": "nest build",
-    "postbuild": "npm run prisma:seed",
+    "postbuild": "npm run seed:if",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "ts-node prisma/seed.ts"
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "seed:if": "node -e \"if (process.env.RUN_SEED === 'true') { require('child_process').execSync('npm run prisma:seed', { stdio: 'inherit' }); } else { console.log('Skip seed: RUN_SEED!=true'); }\""
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",
