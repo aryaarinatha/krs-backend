@@ -13,6 +13,10 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   const frontendUrl =
     config.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+  const allowedOrigins = frontendUrl
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
   const sessionSecret =
     config.get<string>('SESSION_SECRET') || 'krs-session-secret-change-me';
 
@@ -44,7 +48,17 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: frontendUrl,
+    origin: (origin, callback) => {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS not allowed for origin: ${origin}`), false);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   });
